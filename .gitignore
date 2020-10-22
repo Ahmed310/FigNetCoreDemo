@@ -64,3 +64,9 @@ DemoServer/obj/Debug/netcoreapp3.1/DemoServer.AssemblyInfo.cs
 
 !DemoServer/DemoServer.sln
 !DemoServer/DemoServer.csproj
+!GameCommon/GameCommon.csproj
+
+DemoServer/bin/
+GameCommon/obj/
+DemoServer/obj/
+GameCommon/bin/

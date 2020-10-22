@@ -5,4 +5,40 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="ENet-CSharp" Version="2.4.5" />
+    <PackageReference Include="LiteNetLib" Version="0.9.3.2" />
+    <PackageReference Include="MessagePack" Version="2.2.60" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+    <PackageReference Include="SimpleTCP.Core" Version="1.0.4" />
+    <PackageReference Include="WebSocketSharp-netstandard" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GameCommon\GameCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="FigNet">
+      <HintPath>C:\Users\Ahmed\Desktop\FigNetLite\FigNet.dll</HintPath>
+    </Reference>
+    <Reference Include="FIgNetClient">
+      <HintPath>C:\Users\Ahmed\Desktop\FigNetLite\FIgNetClient.dll</HintPath>
+    </Reference>
+    <Reference Include="FigNetProviders">
+      <HintPath>C:\Users\Ahmed\Desktop\FigNetLite\FigNetProviders.dll</HintPath>
+    </Reference>
+    <Reference Include="FigNetServer">
+      <HintPath>C:\Users\Ahmed\Desktop\FigNetLite\FigNetServer.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ServerConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
