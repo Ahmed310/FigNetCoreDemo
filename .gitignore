@@ -58,3 +58,9 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+DemoClient/Temp/
+DemoClient/Library/
+DemoServer/obj/Debug/netcoreapp3.1/DemoServer.AssemblyInfo.cs
+
+!DemoServer/DemoServer.sln
+!DemoServer/DemoServer.csproj
