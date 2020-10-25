@@ -3,6 +3,7 @@ using FigNet.Core;
 using FigNetServer;
 using System.Threading;
 using System.Diagnostics;
+using DemoServer.Modules.Room;
 
 namespace DemoServer
 {
@@ -14,9 +15,19 @@ namespace DemoServer
         {
             IServer serverApp = new ServerApplication();
             serverApp.SetUp();
+            AddDefaultRooms();
             FN.Logger.Info($"FrameRate {FN.Settings.FrameRate}");
             Run(serverApp);
             serverApp.TearDown();
+        }
+
+        private static void AddDefaultRooms() 
+        {
+            var roomManager = ServiceLocator.GetService<RoomManager>();
+
+            roomManager.AddRoom(0, "Lobby", 100, RoomType.Open);
+            roomManager.AddRoom(1, "Zone1", 10, RoomType.Open);
+            roomManager.AddRoom(2, "Zone2", 10, RoomType.Open);
         }
 
         private static void Run(IServer server)

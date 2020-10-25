@@ -1,10 +1,9 @@
-﻿using DemoServer.Game;
-using DemoServer.Modules.Operations;
-using FigNet.Core;
-using GameCommon;
-using System;
+﻿using FigNet.Core;
+using DemoServer.Game;
+using GameCommon.Gameplay;
 using System.Collections.Generic;
-using System.Text;
+using DemoServer.Modules.Operations;
+using Object = GameCommon.Gameplay.Object;
 
 namespace DemoServer.Modules.Room
 {
@@ -15,17 +14,17 @@ namespace DemoServer.Modules.Room
         Game
     }
 
-    public class FigNetRoom
+    public class FigNetRoom : ITickable
     {
         public int Id;
         public string Name;
         public int MaxPlayersAllowed = 10;
         public RoomType Type;
 
-        private readonly List<PlayerObject> Players = new List<PlayerObject>();
+        public readonly List<GameObject> Players = new List<GameObject>();
 
-        public int Maxplayers { get; }
-
+        public int Maxplayers => MaxPlayersAllowed;
+        public bool IsCollisionWithMap(Object @object) => false; // Map.IsCollisionWithCircle(@object) // todo: implement collisionMap
         // Net messages
         // broadcast | except sender
         // send by id
@@ -39,17 +38,28 @@ namespace DemoServer.Modules.Room
         {
             foreach (var player in Players)
             {
-                player.Peer.SendMessage(message, method, channelId);
+                (player as PlayerEntity).Peer.SendMessage(message, method, channelId);
             }
         }
 
         public void SendMessageToPeer(uint peerId, IMessage message, DeliveryMethod method, byte channelId = 0)
         {
-            var peer = Players.Find(p=>p.Peer.Id == peerId).Peer;
-            peer.SendMessage(message, method, channelId);
+            var pEntity = (Players.Find(p=>(p as PlayerEntity).Peer.Id == peerId) as PlayerEntity);
+            if (pEntity != null)
+            {
+                var peer = pEntity.Peer;
+                peer.SendMessage(message, method, channelId);
+            }
             
         }
 
+        public void Tick(float deltaTime)
+        {
+            for (int i = 0; i < Players.Count; i++)
+            {
+                (Players[i] as PlayerEntity).Tick(deltaTime);
+            }
+        }
 
         private void AddPlayer(IPeer peer)
         {
@@ -57,23 +67,23 @@ namespace DemoServer.Modules.Room
 
             for (int i = 0; i < Players.Count; i++)
             {
-                // send new player list of existing player
-                SendMessageToPeer(peer.Id, SpawnRemotePlayer.GetOperation(Players[i].Peer.Id, this.Id), DeliveryMethod.Reliable);
+                // send list of existing players to new player 
+                SendMessageToPeer(peer.Id, SpawnRemotePlayer.GetOperation((Players[i] as PlayerEntity).Peer.Id, this.Id), DeliveryMethod.Reliable);
             }
 
             // tell existing players about new player
             SendMessageToAll(SpawnRemotePlayer.GetOperation(peer.Id, this.Id), DeliveryMethod.Reliable);
-            var player = new PlayerObject(peer, this);
+            var player = new PlayerEntity(peer, this);
             Players.Add(player);
 
-            FN.Logger.Info($"Players in Game {Players.Count}");
+            FN.Logger.Info($"Players in room {Players.Count}");
 
             //OnPlayerJoin?.Invoke(Players.Count);
         }
 
         public void OnData(IMessage data, IPeer peer) 
         {
-            
+            // redirect onplayerstate here
         }
 
         /// <summary>
@@ -83,13 +93,13 @@ namespace DemoServer.Modules.Room
         /// <returns> room status if room is empty shut down the game</returns>
         private bool RemovePlayer(uint id)
         {
-            var player = Players.Find(p => p.Peer.Id == id);
+            var player = Players.Find(p => (p as PlayerEntity).Peer.Id == id);
             if (player == null) return false;
             Players.Remove(player);
             SendMessageToAll(PlayerLeftRoom.GetOperation(id, this.Id), DeliveryMethod.Reliable);
             // todo: fire player count update
-            FN.Logger.Info($"player left the game {id}");
-            return Players.Count < 1;
+            FN.Logger.Info($"player left the room {id}");
+            return true;
         }
 
 
@@ -109,9 +119,15 @@ namespace DemoServer.Modules.Room
             return sucess;
         }
 
-        public void OnPlayerLeft(IPeer peer) 
+        public bool OnPlayerLeft(IPeer peer) 
         {
-            RemovePlayer(peer.Id);
+            return RemovePlayer(peer.Id);
+        }
+
+
+        public PlayerEntity GetPlayerByID(uint id) 
+        {
+           return (Players.Find(p => (p as PlayerEntity).Peer.Id == id) as PlayerEntity);
         }
 
         public FigNetRoom(int id, string name, int maxPlayers, RoomType type)
@@ -127,5 +143,6 @@ namespace DemoServer.Modules.Room
             return new FigNetRoom(id, name, maxPlayers, type);
         }
 
+        
     }
 }

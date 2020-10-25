@@ -4,14 +4,14 @@ namespace GameCommon
 {
     public enum OperationCode : ushort
     {
-        SpawnLocalPlayer,
-        SpawnRemotePlayer,
-        PlayerLeftRoom,
-        RoomIsFull,
+        SpawnLocalPlayer = 10,
+        SpawnRemotePlayer = 11,
+        PlayerLeftRoom = 12,
+        RoomIsFull = 13,
 
 
-        JoinRoom,
-        PlayerState,
+        JoinRoom = 20,
+        PlayerState = 21,
 
     }
 }
